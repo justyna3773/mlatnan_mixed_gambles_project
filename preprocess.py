@@ -184,8 +184,8 @@ def main():
     events = pd.read_csv(args.events_csv, sep='\t')
     #input_filename = ['']
     #events = pd.read_csv('sub-01_task-mixedgamblestask_run-01_events.tsv', sep='\t')
-    #single_task_preprocess(input_filename, events, TASK_ID=args.task)
-    single_task_preprocess_fslmerge(input_filename, events, TASK_ID=args.task)
+    single_task_preprocess(input_filename, events, TASK_ID=args.task)
+    #single_task_preprocess_fslmerge(input_filename, events, TASK_ID=args.task)
 def run_merging_for_all_subjects():
     """
     to be implemented
