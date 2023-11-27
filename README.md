@@ -11,3 +11,9 @@ Naming convention of preprocessed files:
 merged_run{id of run}\_slices{ids of 2 second long slices}\_onset{onset which contains those 2 second long intervals}.nii.gz
 
 Preprocessed files: https://drive.google.com/drive/folders/1Gt9Ns52l3VH99njDZcIuoCxjtpMVSN-j?usp=drive_link
+
+To run preprocess.py:
+
+'''
+python preprocess.py --input sub-01_task-mixedgamblestask_run-1_space-MNI152NLin2009cAsym_res-2_desc-preproc_bold.nii.gz --events_csv sub-01_task-mixedgamblestask_run-01_events.tsv --task 1
+'''
