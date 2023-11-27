@@ -112,7 +112,7 @@ def single_task_preprocess(input_filename, events, TASK_ID=''):
 
 def single_task_preprocess_fslmerge(input_filename, events, TASK_ID=''):
     onsets = events[TIMESTAMP_COL].values.tolist()
-    command = ['fslsplit', str(input_filename),'-t', str(SPLIT_INTERVAL) ]
+    command = ['fslsplit', str(input_filename),'-t', str(SPLIT_INTERVAL)]
     subprocess.run(command)
     ids = []
     slice_id_filename = dict()
@@ -143,7 +143,7 @@ def single_task_preprocess_fslmerge(input_filename, events, TASK_ID=''):
         timestamp_slice_dict_filenames[timestamp] = [slice_id_filename[slice_id] for slice_id in slices_list]
         slice_ids = '_'.join([str(s) for s in slices_list])
         first_input_file = timestamp_slice_dict_filenames[timestamp][0]
-        output_name = f'merged_run{TASK_ID}_slices_{slice_ids}_onset_{int(timestamp[0])}.nii.gz'
+        output_name = f'merged_fslmerge_run{TASK_ID}_slices_{slice_ids}_onset_{int(timestamp[0])}.nii.gz'
         command = ['fslmerge','-t', output_name]+ timestamp_slice_dict_filenames[timestamp] 
         print(command)
         subprocess.run(command)
@@ -178,14 +178,18 @@ def main():
     parser.add_argument("--input", help=".nii.gz input filename")
     parser.add_argument("--events_csv", help=".csv file with dataset description")
     parser.add_argument("--task", help="run id")
+    parser.add_argument("--fslmerge", help="use fslmerge instead of fslmaths", default=0)
     args=parser.parse_args()
 
     input_filename = args.input
     events = pd.read_csv(args.events_csv, sep='\t')
     #input_filename = ['']
     #events = pd.read_csv('sub-01_task-mixedgamblestask_run-01_events.tsv', sep='\t')
-    single_task_preprocess(input_filename, events, TASK_ID=args.task)
-    #single_task_preprocess_fslmerge(input_filename, events, TASK_ID=args.task)
+    if args.fslmerge:
+        single_task_preprocess_fslmerge(input_filename, events, TASK_ID=args.task)
+    else:
+        single_task_preprocess(input_filename, events, TASK_ID=args.task)
+
 def run_merging_for_all_subjects():
     """
     to be implemented
