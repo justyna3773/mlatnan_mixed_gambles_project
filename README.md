@@ -14,6 +14,6 @@ Preprocessed files: https://drive.google.com/drive/folders/1Gt9Ns52l3VH99njDZcIu
 
 To run preprocess.py:
 
-'''
+```
 python preprocess.py --input sub-01_task-mixedgamblestask_run-1_space-MNI152NLin2009cAsym_res-2_desc-preproc_bold.nii.gz --events_csv sub-01_task-mixedgamblestask_run-01_events.tsv --task 1
-'''
+```
