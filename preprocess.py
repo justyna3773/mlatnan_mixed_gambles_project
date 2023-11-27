@@ -110,6 +110,48 @@ def single_task_preprocess(input_filename, events, TASK_ID=''):
     with open('timestamp_filename.json', 'w') as fp:
         json.dump(timestamp_filename, fp) 
 
+def single_task_preprocess_fslmerge(input_filename, events, TASK_ID=''):
+    onsets = events[TIMESTAMP_COL].values.tolist()
+    command = ['fslsplit', str(input_filename),'-t', str(SPLIT_INTERVAL) ]
+    subprocess.run(command)
+    ids = []
+    slice_id_filename = dict()
+    for filename in os.listdir('./'):
+        if ''.join(([input_filename] + ['vol0'])) in filename or ('vol0' in filename):
+            match = re.search(PATTERN, filename)
+            split_id = match.group().lstrip('vol')
+            split_id = int(split_id)
+            ids.append(split_id)
+            slice_id_filename[split_id] = filename
+
+    slices = [id*SPLIT_INTERVAL for id in ids]
+    slices.sort()
+    merged = merge_slices_with_timeframes(onsets, slices)
+    ids.sort()
+    merged_dict = dict(zip(ids, merged))
+    timestamp_slice_dict = dict()
+    for slice_id, timestamp in merged_dict.items():
+        if timestamp not in timestamp_slice_dict:
+            timestamp_slice_dict[timestamp] = [slice_id]
+        else:
+            # If the value is already a key, append the current key to the list
+            timestamp_slice_dict[timestamp].append(slice_id)
+    timestamp_slice_dict_filenames = dict()
+    timestamp_filename = dict()
+
+    for timestamp, slices_list in timestamp_slice_dict.items():
+        timestamp_slice_dict_filenames[timestamp] = [slice_id_filename[slice_id] for slice_id in slices_list]
+        slice_ids = '_'.join([str(s) for s in slices_list])
+        first_input_file = timestamp_slice_dict_filenames[timestamp][0]
+        output_name = f'merged_run{TASK_ID}_slices_{slice_ids}_onset_{int(timestamp[0])}.nii.gz'
+        command = ['fslmerge','-t', output_name]+ timestamp_slice_dict_filenames[timestamp] 
+        print(command)
+        subprocess.run(command)
+        
+    with open('timestamp_filename.json', 'w') as fp:
+        json.dump(timestamp_filename, fp) 
+
+
 
 def merge_files_based_on_timestamps(timestamp_list, output_prefix=''):
     with open('timestamp_filename.json', 'r') as fp:
@@ -142,8 +184,8 @@ def main():
     events = pd.read_csv(args.events_csv, sep='\t')
     #input_filename = ['']
     #events = pd.read_csv('sub-01_task-mixedgamblestask_run-01_events.tsv', sep='\t')
-    single_task_preprocess(input_filename, events, TASK_ID=args.task)
-
+    #single_task_preprocess(input_filename, events, TASK_ID=args.task)
+    single_task_preprocess_fslmerge(input_filename, events, TASK_ID=args.task)
 def run_merging_for_all_subjects():
     """
     to be implemented
